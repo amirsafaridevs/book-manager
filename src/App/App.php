@@ -2,12 +2,11 @@
 namespace BookManager\App;
 
 use Rabbit\Application;
-use BookManager\Providers\BookServiceProvider;
-use BookManager\Providers\AdminServiceProvider;
+use Rabbit\Plugin;
 use Rabbit\Utils\Singleton;
 use Exception;
-
-
+use BookManager\Providers\BookServiceProvider;
+use BookManager\Providers\AdminServiceProvider;
 /**
  * Class BookManager
  * @package BookManager
@@ -25,15 +24,15 @@ class App extends Singleton
     public function __construct(){
         $app = Application::get();
         $this->plugin = $app->loadPlugin(dirname( __FILE__ ), __FILE__);
-        $this->init();
+        $this->addServiceProvider();
+        $this->loadPluginTextDomain();
 
     }
     /**
      * Initialize the plugin
      */
-    public function init(){
+    public function addServiceProvider(){
         try {
-            // register available service providers for the plugin
             $this->plugin->addServiceProvider( BookServiceProvider::class );
             $this->plugin->addServiceProvider( AdminServiceProvider::class );
         } catch (Exception $e) {
@@ -49,26 +48,13 @@ class App extends Singleton
         return $this->plugin;
     }
 
-    /**
-     * Proxy check for a service in the underlying plugin container.
-     *
-     * @param string $id
-     * @return bool
-     */
-    public function has($id)
+    public function loadPluginTextDomain()
     {
-        return $this->plugin->has($id);
-    }
-
-    /**
-     * Proxy retrieval for a service from the underlying plugin container.
-     *
-     * @param string $id
-     * @return mixed
-     */
-    public function get($id)
-    {
-        return $this->plugin->get($id);
+        $this->plugin->boot(
+            function( $plugin ) {
+                $plugin->loadPluginTextDomain();
+            }
+        );
     }
 }
 

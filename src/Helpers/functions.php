@@ -1,7 +1,7 @@
 <?php
 
-use Rabbit\Utils\AdminNotice;
 use BookManager\App\App;
+use Rabbit\Redirects\AdminNotice;
 
 
 function boman_init(){
@@ -15,13 +15,5 @@ function boman_handle_try_catch_error($exception){
     add_action('admin_notices', function () use ($exception) {
         AdminNotice::permanent(['type' => 'error', 'message' => $exception->getMessage()]);
     });
-
-    /**
-     * Log the exception to file
-     */
-    add_action('init', function () use ($exception) {
-        if (App::get()->has('logger')) {
-            App::get()->get('logger')->warning($exception->getMessage());
-        }
-    });
+    
 }
