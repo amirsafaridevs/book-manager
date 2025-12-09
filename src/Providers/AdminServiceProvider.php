@@ -20,5 +20,6 @@ class AdminServiceProvider extends AbstractServiceProvider implements BootablePl
     }
     public function bootPlugin()
     {
+        // View macro is registered in App::loadPluginTextDomain()
     }
 }

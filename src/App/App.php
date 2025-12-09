@@ -9,8 +9,11 @@ use BookManager\Providers\BookServiceProvider;
 use BookManager\Providers\AdminServiceProvider;
 use BookManager\Services\EloquentService;
 use Rabbit\Database\DatabaseServiceProvider;
+use Rabbit\Templates\TemplatesServiceProvider;
+use Rabbit\Templates\Engine;
 use Illuminate\Database\Capsule\Manager as DB;
 use BookManager\Providers\MigrationsServiceProvider;
+
 /**
  * Class BookManager
  * @package BookManager
@@ -48,7 +51,7 @@ class App extends Singleton
        
         $this->addServiceProvider();
         $this->loadPluginTextDomain();
-       
+        $this->registerViewMacro();
      
     }
 
@@ -59,7 +62,9 @@ class App extends Singleton
      */
     public function addServiceProvider(){
         try {
+        
             $this->plugin->addServiceProvider( DatabaseServiceProvider::class );
+            $this->plugin->addServiceProvider( TemplatesServiceProvider::class );
             $this->plugin->addServiceProvider( MigrationsServiceProvider::class );
             $this->plugin->addServiceProvider( BookServiceProvider::class );
             $this->plugin->addServiceProvider( AdminServiceProvider::class );
@@ -76,11 +81,20 @@ class App extends Singleton
         return $this->plugin;
     }
 
+    public function registerViewMacro(){
+        $this->plugin->boot(function (Plugin $plugin) {
+            $plugin::macro('view', function (string $view, array $data = []) {
+                $engine = new Engine($view, $data);
+                return $engine->render();
+            });
+        });
+    }
     public function loadPluginTextDomain()
     {
         $this->plugin->boot(
             function( $plugin ) {
                 $plugin->loadPluginTextDomain();
+                
             }
         );
     }
