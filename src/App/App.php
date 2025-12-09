@@ -11,6 +11,7 @@ use BookManager\Services\EloquentService;
 use Rabbit\Database\DatabaseServiceProvider;
 use Illuminate\Database\Capsule\Manager as DB;
 use BookManager\Providers\MigrationsServiceProvider;
+
 /**
  * Class BookManager
  * @package BookManager
@@ -48,7 +49,10 @@ class App extends Singleton
        
         $this->addServiceProvider();
         $this->loadPluginTextDomain();
-       
+        $bookInfo = new BookInfo();
+        $bookInfo->saveIsbn(1, '1234567890');
+        var_dump($bookInfo->getAll());
+        die();
      
     }
 
