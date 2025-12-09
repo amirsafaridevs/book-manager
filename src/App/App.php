@@ -59,6 +59,7 @@ class App extends Singleton
      */
     public function addServiceProvider(){
         try {
+        
             $this->plugin->addServiceProvider( DatabaseServiceProvider::class );
             $this->plugin->addServiceProvider( MigrationsServiceProvider::class );
             $this->plugin->addServiceProvider( BookServiceProvider::class );
