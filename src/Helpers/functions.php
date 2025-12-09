@@ -5,7 +5,8 @@ use Rabbit\Redirects\AdminNotice;
 
 
 function boman_init(){
-     return App::get();
+
+     return new App();
 }
 
 function boman_handle_try_catch_error($exception){
