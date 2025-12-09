@@ -14,7 +14,7 @@ class BookPostTypeService  extends AbstractService
      *
      * @return void
      */
-    public function register()
+    public function boot()
     {
         $labels = [
             'name'                  => _x('Books', 'Post type general name', 'book-manager'),
