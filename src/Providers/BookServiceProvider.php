@@ -5,7 +5,8 @@ use Rabbit\Contracts\BootablePluginProviderInterface;
 use League\Container\ServiceProvider\AbstractServiceProvider;
 use BookManager\Services\BookPostTypeService;
 use BookManager\Services\BookTaxonomyService;
-
+use BookManager\Services\BookMetaBoxService;
+use BookManager\Models\BookInfo;
 
 
 /**
@@ -15,12 +16,12 @@ class BookServiceProvider extends AbstractServiceProvider implements BootablePlu
 {
     protected $provides = [
         'book.post_type',
-        'book.taxonomy'
+        'book.taxonomy',
+        'book.meta_box',
     ];
     
     public function register()
     {
-
          $container = $this->getContainer();
 
         // Register Book Post Type Service
@@ -29,6 +30,12 @@ class BookServiceProvider extends AbstractServiceProvider implements BootablePlu
         // Register Book Taxonomy Service
         $container->add('book.taxonomy', BookTaxonomyService::class);
 
+
+        // Register BookInfo Model
+        $container->add(BookInfo::class);
+        // Register Book Meta Box Service with dependency injection
+        $container->add('book.meta_box', BookMetaBoxService::class)
+        ->addArgument(BookInfo::class);
 
     }
     public function boot()
@@ -43,15 +50,17 @@ class BookServiceProvider extends AbstractServiceProvider implements BootablePlu
         // Initialize Book Post Type
         add_action('init', function() use ($container) {
             $postTypeService = $container->get('book.post_type');
-            $postTypeService->register();
-        });
-
-         // Initialize Taxonomies
-         add_action('init', function() use ($container) {
+            $postTypeService->boot();
             $taxonomyService = $container->get('book.taxonomy');
-            $taxonomyService->register();
+            $taxonomyService->boot();
         });
 
+         // Initialize Meta Box
+         add_action('add_meta_boxes', function() use ($container) {
+            $metaBoxService = $container->get('book.meta_box');
+            $metaBoxService->setContainer($container);
+            $metaBoxService->boot();
+        });
 
     }
 }
