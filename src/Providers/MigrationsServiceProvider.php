@@ -26,10 +26,16 @@ class MigrationsServiceProvider extends AbstractServiceProvider implements Boota
         if (!$container->has(MigrationsService::class)) {
             $this->register();
         }
-        
+
         // Run migrations
-        $migrationsService = $container->get(MigrationsService::class);
-        $migrationsService->setContainer($container)->boot();
+        $container->onActivation(function () use ($container) {
+            try {
+                $migrationsService = $container->get(MigrationsService::class);
+                $migrationsService->setContainer($container)->boot();
+            } catch (Exception $e) {
+                boman_handle_try_catch_error($e);
+            }
+        });
     }
     
     public function bootPlugin()
