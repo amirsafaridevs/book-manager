@@ -19,5 +19,9 @@ if ( file_exists( dirname( __FILE__ ) . '/vendor/autoload.php' ) ) {
     require dirname( __FILE__ ) . '/vendor/autoload.php';
 }
 
+use Rabbit\Application;
 
 
+// Initialize Rabbit Framework
+$app = Application::get();
+$plugin = $app->loadPlugin(dirname( __FILE__ ), __FILE__);
