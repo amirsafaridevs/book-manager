@@ -1,18 +1,19 @@
 <?php
 
 namespace BookManager\Services;
+use BookManager\Services\AbstractService;
 
 /**
  * Service for registering Book Taxonomies
  */
-class BookTaxonomyService
+class BookTaxonomyService extends AbstractService
 {
     /**
      * Register taxonomies for Book post type
      *
      * @return void
      */
-    public function register()
+    public function boot()
     {
         $this->registerPublisherTaxonomy();
         $this->registerAuthorsTaxonomy();
