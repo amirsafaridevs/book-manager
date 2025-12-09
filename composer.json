@@ -1,0 +1,23 @@
+{
+    "name": "amirsafari/book-manager",
+    "description": "A WordPress plugin to manage book information using Rabbit Framework",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "BookManager\\": "src/"
+        },
+        "files": [
+            "src/Helpers/functions.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Amir Safari"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "veronalabs/rabbit": "^1.5"
+    }
+}
