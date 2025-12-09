@@ -23,7 +23,10 @@ class App extends Singleton
      */
     public function __construct(){
         $app = Application::get();
-        $this->plugin = $app->loadPlugin(dirname( __FILE__ ), __FILE__);
+        // Use plugin root (two levels up from this file) so Rabbit can find the config folder
+        $basePath = dirname(__DIR__, 2);
+        $filePath = $basePath . DIRECTORY_SEPARATOR . 'book-manager.php';
+        $this->plugin = $app->loadPlugin( $basePath, $filePath, 'config' );
         $this->addServiceProvider();
         $this->loadPluginTextDomain();
 
