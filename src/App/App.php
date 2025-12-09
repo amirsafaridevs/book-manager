@@ -8,6 +8,9 @@ use Exception;
 use BookManager\Providers\BookServiceProvider;
 use BookManager\Providers\AdminServiceProvider;
 use BookManager\Services\EloquentService;
+use Rabbit\Database\DatabaseServiceProvider;
+use Illuminate\Database\Capsule\Manager as DB;
+use BookManager\Providers\MigrationsServiceProvider;
 /**
  * Class BookManager
  * @package BookManager
@@ -31,7 +34,7 @@ class App extends Singleton
         $this->prepareFilePath();
         $app = Application::get();
         $this->plugin = $app->loadPlugin( $this->basePath, $this->filePath, 'config' );
-        $this->plugin->boot($this->boot());
+        $this->init();
 
     }
 
@@ -41,10 +44,11 @@ class App extends Singleton
     }
 
 
-    private function boot(){
+    private function init(){
        
         $this->addServiceProvider();
         $this->loadPluginTextDomain();
+       
      
     }
 
@@ -55,6 +59,8 @@ class App extends Singleton
      */
     public function addServiceProvider(){
         try {
+            $this->plugin->addServiceProvider( DatabaseServiceProvider::class );
+            $this->plugin->addServiceProvider( MigrationsServiceProvider::class );
             $this->plugin->addServiceProvider( BookServiceProvider::class );
             $this->plugin->addServiceProvider( AdminServiceProvider::class );
         } catch (Exception $e) {
