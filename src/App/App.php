@@ -7,6 +7,7 @@ use Rabbit\Utils\Singleton;
 use Exception;
 use BookManager\Providers\BookServiceProvider;
 use BookManager\Providers\AdminServiceProvider;
+use BookManager\Services\EloquentService;
 /**
  * Class BookManager
  * @package BookManager
@@ -18,19 +19,37 @@ class App extends Singleton
      * @var Plugin
      */
     private $plugin;
+    private $basePath;
+    private $filePath;
+    protected EloquentService $eloquent;
+
     /**
      * Initialize the plugin
      */
     public function __construct(){
-        $app = Application::get();
         // Use plugin root (two levels up from this file) so Rabbit can find the config folder
-        $basePath = dirname(__DIR__, 2);
-        $filePath = $basePath . DIRECTORY_SEPARATOR . 'book-manager.php';
-        $this->plugin = $app->loadPlugin( $basePath, $filePath, 'config' );
-        $this->addServiceProvider();
-        $this->loadPluginTextDomain();
+        $this->prepareFilePath();
+        $app = Application::get();
+        $this->plugin = $app->loadPlugin( $this->basePath, $this->filePath, 'config' );
+        $this->plugin->boot($this->boot());
 
     }
+
+    private function prepareFilePath(){
+        $this->basePath = dirname(__DIR__, 2);
+        $this->filePath = $this->basePath . DIRECTORY_SEPARATOR . 'book-manager.php';
+    }
+
+
+    private function boot(){
+       
+        $this->addServiceProvider();
+        $this->loadPluginTextDomain();
+     
+    }
+
+    
+ 
     /**
      * Initialize the plugin
      */
