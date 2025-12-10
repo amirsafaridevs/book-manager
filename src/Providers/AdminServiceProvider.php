@@ -28,6 +28,7 @@ class AdminServiceProvider extends AbstractServiceProvider implements BootablePl
     {
         $container = $this->getContainer();
         $bookInfoPage = $container->get('Admin.bookInfoPage');
+        $bookInfoPage->setContainer($container);
         add_action('admin_menu', [$bookInfoPage, 'addMenuPage']);
     }
 }

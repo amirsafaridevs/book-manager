@@ -85,7 +85,7 @@ class App extends Singleton
         $this->plugin->boot(function (Plugin $plugin) {
             $plugin::macro('view', function (string $view, array $data = []) {
                 $engine = new Engine($view, $data);
-                return $engine->render();
+                 echo $engine->render();
             });
         });
     }
