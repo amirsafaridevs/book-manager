@@ -456,7 +456,7 @@ class Table extends \WP_List_Table
         // Display in form wrapper (required for search and pagination)
         ?>
         <form method="get">
-            <input type="hidden" name="page" value="<?php echo esc_attr(isset($_GET['page']) ? $_GET['page'] : ''); ?>" />
+            <input type="hidden" name="page" value="<?php echo esc_attr(isset($_GET['page']) ? sanitize_text_field($_GET['page']) : ''); ?>" />
             <?php 
             // Display table (search box will be displayed automatically in extra_tablenav)
             $table->display();

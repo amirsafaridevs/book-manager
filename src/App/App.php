@@ -139,11 +139,14 @@ class App extends Singleton
      */
     public function loadPluginTextDomain()
     {
-        $this->plugin->boot(
-            function( $plugin ) {
-                $plugin->loadPluginTextDomain();
-            }
-        );
+        ///loadPluginTextDomain in Rabbit have an error(directory paramert)
+        add_action('plugins_loaded', function() {
+            load_plugin_textdomain(
+                'book-manager',
+                false,
+                dirname(plugin_basename($this->filePath)) . '/languages'
+            );
+        });
     }
 }
 
