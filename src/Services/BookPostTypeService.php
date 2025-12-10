@@ -54,7 +54,7 @@ class BookPostTypeService  extends AbstractService
             'capability_type'    => 'post',
             'has_archive'        => true,
             'hierarchical'       => false,
-            'menu_position'      => null,
+            'menu_position'      => 20,
             'menu_icon'          => 'dashicons-book',
             'supports'           => ['title', 'editor', 'thumbnail', 'excerpt'],
             'show_in_rest'       => true,

@@ -21,7 +21,7 @@ class BookInfoPage extends AbstractService
 
     public function addMenuPage()
     {
-        add_menu_page('Book Info', 'Book Info', 'manage_options', 'book-info', [$this, 'renderPage']);
+        add_menu_page('Book Info', 'Book Info', 'manage_options', 'book-info', [$this, 'renderPage'], 'dashicons-info', 21);
     }
     
     public function renderPage()
