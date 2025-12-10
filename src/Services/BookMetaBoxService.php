@@ -60,7 +60,7 @@ class BookMetaBoxService extends AbstractService implements FormRendererInterfac
     public function renderMetaBox($post)
     {
         $this->post = $post;
-        echo $this->render();
+        $this->render();
     }
 
     /**
@@ -78,8 +78,7 @@ class BookMetaBoxService extends AbstractService implements FormRendererInterfac
         // Get current ISBN value
         $isbn = $this->bookInfo->getIsbnByPostId($this->post->ID);
 
-        $pluginPrefix = $this->getContainer()->getHeader('plugin_prefix');
-        return $this->getContainer()->view('book-meta-box', ['isbn' => $isbn, 'pluginPrefix' => $pluginPrefix]) ?: '';
+        return $this->getContainer()->view('book-meta-box', ['isbn' => $isbn]) ?: '';
     }
 
 

@@ -14,7 +14,8 @@ class MigrationsServiceProvider extends AbstractServiceProvider implements Boota
     public function register()
     {
         $container = $this->getContainer();
-        $container->add(MigrationsService::class);
+        // Use share() instead of add() to implement Singleton Pattern
+        $container->share(MigrationsService::class);
     }
     
     public function boot()
@@ -32,7 +33,7 @@ class MigrationsServiceProvider extends AbstractServiceProvider implements Boota
             try {
                 $migrationsService = $container->get(MigrationsService::class);
                 $migrationsService->setContainer($container)->boot();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 boman_handle_try_catch_error($e);
             }
         });
