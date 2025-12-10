@@ -5,6 +5,9 @@ namespace BookManager\Services;
 use BookManager\Models\BookInfo;
 use Rabbit\Contracts\FormRendererInterface;
 use BookManager\Services\AbstractService;
+use Rabbit\Utils\RequestFactory;
+use Rabbit\Nonces\NonceFactory;
+use Rabbit\Exceptions\InvalidNonceException;
 
 /**
  * Service for Book ISBN Meta Box
@@ -75,8 +78,78 @@ class BookMetaBoxService extends AbstractService implements FormRendererInterfac
         // Get current ISBN value
         $isbn = $this->bookInfo->getIsbnByPostId($this->post->ID);
 
-        
-        return $this->getContainer()->view('book-meta-box', ['isbn' => $isbn]) ?: '';
+        $pluginPrefix = $this->getContainer()->getHeader('plugin_prefix');
+        return $this->getContainer()->view('book-meta-box', ['isbn' => $isbn, 'pluginPrefix' => $pluginPrefix]) ?: '';
+    }
+
+
+    public function save($postId)
+    {
+        try {
+            if (! $this->preconditionsPass($postId)) {
+                return;
+            }
+
+            $isbn = $this->extractIsbn();
+
+            $this->persistIsbn($isbn);
+
+        } catch (\Exception $e) {
+            boman_handle_try_catch_error($e);
+            return;
+        }
+    }
+
+    
+
+    protected function preconditionsPass($postId): bool
+    {
+       
+
+        if ($this->isAutosave()) {
+            return false;
+        }
+
+        if (! $this->canEditPost()) {
+            return false;
+        }
+
+        return $this->validateNonceOrFail();
+    }
+
+
+
+    protected function isAutosave(): bool
+    {
+        return defined('DOING_AUTOSAVE') && DOING_AUTOSAVE;
+    }
+
+    protected function canEditPost(): bool
+    {
+        return $this->post && current_user_can('edit_post', $this->post->ID);
+    }
+
+    public function validateNonceOrFail()
+    {
+        $slug =  'book_isbn_meta_box';
+        return NonceFactory::verify($slug);
+    }
+
+    protected function extractIsbn(): string
+    {
+        $request = RequestFactory::getPostedData();
+        $isbn = $request->get('book_isbn');
+        return $this->sanitize($isbn);
+    }
+
+    protected function persistIsbn(string $isbn): void
+    {
+        $this->bookInfo->updateIsbnByPostId($this->post->ID, $isbn);
+    }
+
+    public function sanitize($value)
+    {
+        return sanitize_text_field($value);
     }
 }
 
