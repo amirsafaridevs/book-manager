@@ -222,6 +222,14 @@ msgstr "نویسندگان"
 msgid "Book ISBN"
 msgstr "شابک کتاب"
 
+#: src/Services/BookInfoPage.php:25
+msgid "Book Information"
+msgstr "اطلاعات کتاب"
+
+#: src/Services/BookInfoPage.php:26
+msgid "Book Info"
+msgstr "اطلاعات کتاب"
+
 #: src/Services/BookInfoPage.php:33
 msgid "ID"
 msgstr "شناسه"
@@ -265,4 +273,8 @@ msgstr "کتاب‌ها"
 #: views/bookinfo-page.php:23
 msgid "Search Books"
 msgstr "جستجوی کتاب‌ها"
+
+#: src/Helpers/Table.php:441
+msgid "Search"
+msgstr "جستجو"
 

@@ -219,6 +219,14 @@ msgstr ""
 msgid "Book ISBN"
 msgstr ""
 
+#: src/Services/BookInfoPage.php:25
+msgid "Book Information"
+msgstr ""
+
+#: src/Services/BookInfoPage.php:26
+msgid "Book Info"
+msgstr ""
+
 #: src/Services/BookInfoPage.php:33
 msgid "ID"
 msgstr ""
@@ -261,5 +269,9 @@ msgstr ""
 
 #: views/bookinfo-page.php:23
 msgid "Search Books"
+msgstr ""
+
+#: src/Helpers/Table.php:441
+msgid "Search"
 msgstr ""
 

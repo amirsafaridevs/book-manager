@@ -1,6 +1,9 @@
 <?php
 namespace BookManager\Helpers;
 
+use Rabbit\Utils\Arr;
+use Rabbit\Utils\Sanitizer;
+
 if (!class_exists('WP_List_Table')) {
     require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
 }
@@ -72,22 +75,14 @@ class Table extends \WP_List_Table
     public function __construct($args = [])
     {
         parent::__construct([
-            'singular' => isset($args['singular']) ? $args['singular'] : 'item',
-            'plural' => isset($args['plural']) ? $args['plural'] : 'items',
-            'ajax' => isset($args['ajax']) ? $args['ajax'] : false,
+            'singular' => Arr::get($args, 'singular', 'item'),
+            'plural' => Arr::get($args, 'plural', 'items'),
+            'ajax' => Arr::get($args, 'ajax', false),
         ]);
 
-        if (isset($args['per_page'])) {
-            $this->perPage = (int) $args['per_page'];
-        }
-
-        if (isset($args['primary_key'])) {
-            $this->primaryKey = $args['primary_key'];
-        }
-
-        if (isset($args['show_checkbox'])) {
-            $this->showCheckbox = (bool) $args['show_checkbox'];
-        }
+        $this->perPage = (int) Arr::get($args, 'per_page', $this->perPage);
+        $this->primaryKey = Arr::get($args, 'primary_key', $this->primaryKey);
+        $this->showCheckbox = (bool) Arr::get($args, 'show_checkbox', $this->showCheckbox);
     }
 
     /**
@@ -145,15 +140,16 @@ class Table extends \WP_List_Table
                 $this->sortableColumns[$key] = [$key, false];
             } elseif (is_array($column)) {
                 // Advanced format: ['key' => ['label' => 'Label', 'sortable' => true, 'callback' => function]]
-                $this->columns[$key] = isset($column['label']) ? $column['label'] : ucfirst($key);
+                $this->columns[$key] = Arr::get($column, 'label', ucfirst($key));
                 
-                if (isset($column['sortable']) && $column['sortable'] === true) {
+                if (Arr::get($column, 'sortable') === true) {
                     $this->sortableColumns[$key] = [$key, false];
                 }
                 
                 // Store callback for custom rendering
-                if (isset($column['callback']) && is_callable($column['callback'])) {
-                    $this->columnCallbacks[$key] = $column['callback'];
+                $callback = Arr::get($column, 'callback');
+                if (is_callable($callback)) {
+                    $this->columnCallbacks[$key] = $callback;
                 }
             }
         }
@@ -202,37 +198,8 @@ class Table extends \WP_List_Table
      */
     protected function getNestedValue($item, $key)
     {
-        // If no dot notation, use simple access
-        if (strpos($key, '.') === false) {
-            if (is_array($item)) {
-                return isset($item[$key]) ? $item[$key] : null;
-            } elseif (is_object($item)) {
-                return isset($item->$key) ? $item->$key : null;
-            }
-            return null;
-        }
-        
-        // Handle nested access
-        $keys = explode('.', $key);
-        $value = $item;
-        
-        foreach ($keys as $k) {
-            if (is_array($value)) {
-                if (!isset($value[$k])) {
-                    return null;
-                }
-                $value = $value[$k];
-            } elseif (is_object($value)) {
-                if (!isset($value->$k)) {
-                    return null;
-                }
-                $value = $value->$k;
-            } else {
-                return null;
-            }
-        }
-        
-        return $value;
+        // Use Arr::dataGet which supports both arrays and objects with dot notation
+        return Arr::dataGet($item, $key);
     }
 
     /**
@@ -267,8 +234,7 @@ class Table extends \WP_List_Table
      */
     public function column_cb($item)
     {
-        $primaryKey = $this->primaryKey;
-        $value = isset($item[$primaryKey]) ? $item[$primaryKey] : '';
+        $value = Arr::get($item, $this->primaryKey, '');
         return sprintf(
             '<input type="checkbox" name="bulk-delete[]" value="%s" />',
             esc_attr($value)
@@ -285,8 +251,8 @@ class Table extends \WP_List_Table
         $data = $this->filter_data();
         
         // Get sort parameters
-        $orderby = isset($_GET['orderby']) ? sanitize_text_field($_GET['orderby']) : '';
-        $order = isset($_GET['order']) ? sanitize_text_field($_GET['order']) : 'asc';
+        $orderby = Sanitizer::clean(Arr::get($_GET, 'orderby', ''));
+        $order = Sanitizer::clean(Arr::get($_GET, 'order', 'asc'));
 
         // Sort data
         if ($orderby && isset($this->sortableColumns[$orderby])) {
@@ -338,7 +304,7 @@ class Table extends \WP_List_Table
     protected function filter_data()
     {
         $data = $this->tableData;
-        $search = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
+        $search = Sanitizer::clean(Arr::get($_GET, 's', ''));
 
         if (empty($search)) {
             return $data;
@@ -456,7 +422,7 @@ class Table extends \WP_List_Table
         // Display in form wrapper (required for search and pagination)
         ?>
         <form method="get">
-            <input type="hidden" name="page" value="<?php echo esc_attr(isset($_GET['page']) ? sanitize_text_field($_GET['page']) : ''); ?>" />
+            <input type="hidden" name="page" value="<?php echo esc_attr(Sanitizer::clean(Arr::get($_GET, 'page', ''))); ?>" />
             <?php 
             // Display table (search box will be displayed automatically in extra_tablenav)
             $table->display();
