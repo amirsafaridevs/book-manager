@@ -194,6 +194,48 @@ class Table extends \WP_List_Table
     }
 
     /**
+     * Get nested value from an item (supports dot notation)
+     * 
+     * @param mixed $item The item (array or object)
+     * @param string $key The key (supports dot notation like 'book.post_title')
+     * @return mixed
+     */
+    protected function getNestedValue($item, $key)
+    {
+        // If no dot notation, use simple access
+        if (strpos($key, '.') === false) {
+            if (is_array($item)) {
+                return isset($item[$key]) ? $item[$key] : null;
+            } elseif (is_object($item)) {
+                return isset($item->$key) ? $item->$key : null;
+            }
+            return null;
+        }
+        
+        // Handle nested access
+        $keys = explode('.', $key);
+        $value = $item;
+        
+        foreach ($keys as $k) {
+            if (is_array($value)) {
+                if (!isset($value[$k])) {
+                    return null;
+                }
+                $value = $value[$k];
+            } elseif (is_object($value)) {
+                if (!isset($value->$k)) {
+                    return null;
+                }
+                $value = $value->$k;
+            } else {
+                return null;
+            }
+        }
+        
+        return $value;
+    }
+
+    /**
      * Get value for column
      * 
      * @param array $item Current item
@@ -207,9 +249,11 @@ class Table extends \WP_List_Table
             return call_user_func($this->columnCallbacks[$column_name], $item, $column_name);
         }
         
-        // Otherwise return default value
-        if (isset($item[$column_name])) {
-            return esc_html($item[$column_name]);
+        // Get value (supports nested properties like 'book.post_title')
+        $value = $this->getNestedValue($item, $column_name);
+        
+        if ($value !== null) {
+            return esc_html($value);
         }
         
         return '—';
@@ -247,8 +291,9 @@ class Table extends \WP_List_Table
         // Sort data
         if ($orderby && isset($this->sortableColumns[$orderby])) {
             usort($data, function($a, $b) use ($orderby, $order) {
-                $valA = isset($a[$orderby]) ? $a[$orderby] : '';
-                $valB = isset($b[$orderby]) ? $b[$orderby] : '';
+                // Support nested values
+                $valA = $this->getNestedValue($a, $orderby) ?? '';
+                $valB = $this->getNestedValue($b, $orderby) ?? '';
                 
                 // Convert to string for comparison
                 $valA = is_numeric($valA) ? (float) $valA : strtolower((string) $valA);
@@ -299,10 +344,12 @@ class Table extends \WP_List_Table
             return $data;
         }
 
-        // Search in all columns
+        // Search in all columns (including nested ones)
         $filtered = array_filter($data, function($item) use ($search) {
-            foreach ($item as $value) {
-                if (stripos((string) $value, $search) !== false) {
+            // Search in defined columns
+            foreach ($this->columns as $key => $label) {
+                $value = $this->getNestedValue($item, $key);
+                if ($value !== null && stripos((string) $value, $search) !== false) {
                     return true;
                 }
             }
