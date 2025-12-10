@@ -139,6 +139,7 @@ class App extends Singleton
      */
     public function loadPluginTextDomain()
     {
+        ///loadPluginTextDomain in Rabbit have an error(directory paramert)
         add_action('plugins_loaded', function() {
             load_plugin_textdomain(
                 'book-manager',
