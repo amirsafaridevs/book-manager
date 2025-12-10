@@ -19,7 +19,7 @@ function boman_handle_try_catch_error($exception){
      * Print the exception message to admin notice area
      */
     add_action('admin_notices', function () use ($exception) {
-        AdminNotice::permanent(['type' => 'error', 'message' => $exception->getMessage()]);
+        AdminNotice::permanent(['type' => 'error', 'message' => esc_html($exception->getMessage())]);
     });
     
 }
