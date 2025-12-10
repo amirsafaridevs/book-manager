@@ -25,16 +25,16 @@ class BookServiceProvider extends AbstractServiceProvider implements BootablePlu
          $container = $this->getContainer();
 
         // Register Book Post Type Service
-        $container->add('book.post_type', BookPostTypeService::class);
+        $container->share('book.post_type', BookPostTypeService::class);
         
         // Register Book Taxonomy Service
-        $container->add('book.taxonomy', BookTaxonomyService::class);
+        $container->share('book.taxonomy', BookTaxonomyService::class);
 
 
         // Register BookInfo Model
-        $container->add(BookInfo::class);
+        $container->share(BookInfo::class);
         // Register Book Meta Box Service with dependency injection
-        $container->add('book.meta_box', BookMetaBoxService::class)
+        $container->share('book.meta_box', BookMetaBoxService::class)
         ->addArgument(BookInfo::class);
 
     }
@@ -44,28 +44,23 @@ class BookServiceProvider extends AbstractServiceProvider implements BootablePlu
     }
     public function bootPlugin()
     {
-
         $container = $this->getContainer();
-        // Initialize Book Post Type
-        add_action('init', function() use ($container) {
-            $postTypeService = $container->get('book.post_type');
+        // Get services once
+        $postTypeService = $container->get('book.post_type');
+        $taxonomyService = $container->get('book.taxonomy');
+        $metaBoxService = $container->get('book.meta_box');
+        $metaBoxService->setContainer($container);
+        
+        // Initialize Book Post Type and Taxonomy
+        add_action('init', function() use ($postTypeService, $taxonomyService) {
             $postTypeService->boot();
-            $taxonomyService = $container->get('book.taxonomy');
             $taxonomyService->boot();
         });
 
-         // Initialize Meta Box
-         add_action('add_meta_boxes', function() use ($container) {
-            $metaBoxService = $container->get('book.meta_box');
-            $metaBoxService->setContainer($container);
-            $metaBoxService->boot();
-        });
+        // Initialize Meta Box
+        add_action('add_meta_boxes', [$metaBoxService, 'boot']);
 
-
-        add_action('save_post_book', function($postId) use ($container) {
-            $metaBoxService = $container->get('book.meta_box');
-            $metaBoxService->setContainer($container);
-            $metaBoxService->save($postId);
-        });
+        // Save Meta Box
+        add_action('save_post_book', [$metaBoxService, 'save']);
     }
 }
