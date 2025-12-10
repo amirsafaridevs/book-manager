@@ -86,6 +86,7 @@ class BookMetaBoxService extends AbstractService implements FormRendererInterfac
     public function save($postId)
     {
         try {
+            $this->post = get_post($postId);
             if (! $this->preconditionsPass($postId)) {
                 return;
             }
@@ -100,12 +101,12 @@ class BookMetaBoxService extends AbstractService implements FormRendererInterfac
         }
     }
 
-    
+
 
     protected function preconditionsPass($postId): bool
     {
        
-
+        
         if ($this->isAutosave()) {
             return false;
         }
@@ -144,7 +145,7 @@ class BookMetaBoxService extends AbstractService implements FormRendererInterfac
 
     protected function persistIsbn(string $isbn): void
     {
-        $this->bookInfo->updateIsbnByPostId($this->post->ID, $isbn);
+        $this->bookInfo->saveIsbn($this->post->ID, $isbn);
     }
 
     public function sanitize($value)
