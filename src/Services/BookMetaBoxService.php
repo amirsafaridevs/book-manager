@@ -6,6 +6,7 @@ use BookManager\Models\BookInfo;
 use Rabbit\Contracts\FormRendererInterface;
 use BookManager\Services\AbstractService;
 use Rabbit\Utils\RequestFactory;
+use Rabbit\Utils\Sanitizer;
 use Rabbit\Nonces\NonceFactory;
 use Rabbit\Exceptions\InvalidNonceException;
 
@@ -149,7 +150,7 @@ class BookMetaBoxService extends AbstractService implements FormRendererInterfac
 
     public function sanitize($value)
     {
-        return sanitize_text_field($value);
+        return Sanitizer::clean($value);
     }
 }
 
