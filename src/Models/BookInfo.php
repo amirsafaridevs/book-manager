@@ -40,10 +40,10 @@ class BookInfo extends Model {
     }
 
     /**
-     * Get all book info records
+     * Get all book info records with related book data
      */
     public function getAll()
     {
-        return $this->all();
+        return $this->with('book')->get();
     }
 }

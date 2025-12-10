@@ -33,6 +33,7 @@ class BookInfoPage extends AbstractService
                 'id' => __('ID', 'book-manager'),
                 'post_id' => __('Post ID', 'book-manager'),
                 'isbn' => __('ISBN', 'book-manager'),
+                'book.post_title' => __('Book Title', 'book-manager'),
             ];
             
             // Render view
