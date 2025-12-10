@@ -19,5 +19,12 @@
     "minimum-stability": "dev",
     "require": {
         "veronalabs/rabbit": "^1.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "9.6.x-dev",
+        "mockery/mockery": "^1.5"
+    },
+    "scripts": {
+        "test": "phpunit"
     }
 }
