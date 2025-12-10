@@ -93,11 +93,34 @@ class Table extends \WP_List_Table
     /**
      * Set table data
      * 
-     * @param array $data Data array
+     * @param array|object $data Data array or Eloquent Collection
      * @return $this
      */
-    public function setData(array $data)
+    public function setData($data)
     {
+        // Convert Eloquent Collection to array
+        if (is_object($data) && method_exists($data, 'toArray')) {
+            $data = $data->toArray();
+        } elseif (is_object($data)) {
+            // Convert other objects to array
+            $dataArray = [];
+            foreach ($data as $item) {
+                if (is_object($item) && method_exists($item, 'toArray')) {
+                    $dataArray[] = $item->toArray();
+                } elseif (is_object($item)) {
+                    $dataArray[] = (array) $item;
+                } else {
+                    $dataArray[] = $item;
+                }
+            }
+            $data = $dataArray;
+        }
+        
+        // Ensure it's an array
+        if (!is_array($data)) {
+            $data = [];
+        }
+        
         $this->tableData = $data;
         return $this;
     }
@@ -145,6 +168,11 @@ class Table extends \WP_List_Table
      */
     public function get_columns()
     {
+        // Ensure columns are set
+        if (empty($this->columns)) {
+            return [];
+        }
+        
         $columns = $this->columns;
         
         // Add checkbox column if enabled
@@ -209,7 +237,7 @@ class Table extends \WP_List_Table
      */
     public function prepare_items()
     {
-        // Get filtered data
+        // Get filtered data first
         $data = $this->filter_data();
         
         // Get sort parameters
@@ -248,8 +276,13 @@ class Table extends \WP_List_Table
 
         $this->items = $data;
         
-        // Set columns
-        $this->_column_headers = $this->get_column_info();
+        // Set column headers manually (WP_List_Table format)
+        $columns = $this->get_columns();
+        $hidden = [];
+        $sortable = $this->get_sortable_columns();
+        $primary = $this->primaryKey;
+        
+        $this->_column_headers = array($columns, $hidden, $sortable, $primary);
     }
 
     /**
@@ -286,35 +319,102 @@ class Table extends \WP_List_Table
      */
     public function display()
     {
-        $this->prepare_items();
+        // Only prepare if not already prepared
+        if (empty($this->items)) {
+            $this->prepare_items();
+        }
+        
+        // Call parent display
         parent::display();
     }
 
     /**
-     * Display search
+     * Store search configuration
+     */
+    protected $searchLabel = '';
+    protected $showSearchBox = true;
+    
+    /**
+     * Display search box in extra tablenav area (aligned with pagination)
      * 
      * @param string $which Search position (top or bottom)
      */
     protected function extra_tablenav($which)
     {
-        if ($which === 'top') {
-            // Search is automatically displayed in WP_List_Table
+        if ($which === 'top' && $this->showSearchBox && !empty($this->searchLabel)) {
+            ?>
+            <div class="alignleft actions">
+                <?php $this->search_box($this->searchLabel, 'search'); ?>
+            </div>
+            <?php
         }
     }
 
     /**
      * Static method for quick table creation
      * 
-     * @param array $data Table data
+     * @param array|object $data Table data or Eloquent Collection
      * @param array $columns Table columns
      * @param array $args Additional arguments
      * @return Table
      */
-    public static function create(array $data, array $columns, array $args = [])
+    public static function create($data, array $columns, array $args = [])
     {
         $table = new self($args);
         $table->setData($data);
         $table->setColumns($columns);
         return $table;
+    }
+    
+    /**
+     * Quick display method - creates and displays table in one call
+     * 
+     * Features enabled by default:
+     * - Search box (always displayed)
+     * - Pagination (per_page defaults to 20)
+     * - Sortable columns (all columns sortable by default)
+     * 
+     * @param array|object $data Table data or Eloquent Collection
+     * @param array $columns Table columns in format ['column_key' => 'Column Label']
+     * @param array $args Additional arguments:
+     *                    - 'singular': Singular name (default: 'item')
+     *                    - 'plural': Plural name (default: 'items')
+     *                    - 'per_page': Items per page (default: 20)
+     *                    - 'primary_key': Primary key column (default: 'id')
+     *                    - 'search_label': Search box label (default: 'Search')
+     *                    - 'show_search': Show search box (default: true)
+     * @return void
+     */
+    public static function show($data, array $columns, array $args = [])
+    {
+        // Set defaults
+        $defaults = [
+            'per_page' => 20,
+            'primary_key' => 'id',
+            'search_label' => __('Search', 'book-manager'),
+            'show_search' => true,
+        ];
+        
+        $args = array_merge($defaults, $args);
+        
+        $table = self::create($data, $columns, $args);
+        
+        // Set search configuration
+        $table->searchLabel = $args['search_label'];
+        $table->showSearchBox = $args['show_search'];
+        
+        // Prepare items before displaying
+        $table->prepare_items();
+        
+        // Display in form wrapper (required for search and pagination)
+        ?>
+        <form method="get">
+            <input type="hidden" name="page" value="<?php echo esc_attr(isset($_GET['page']) ? $_GET['page'] : ''); ?>" />
+            <?php 
+            // Display table (search box will be displayed automatically in extra_tablenav)
+            $table->display();
+            ?>
+        </form>
+        <?php
     }
 }
