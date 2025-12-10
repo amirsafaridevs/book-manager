@@ -46,7 +46,6 @@ class BookServiceProvider extends AbstractServiceProvider implements BootablePlu
     {
 
         $container = $this->getContainer();
-
         // Initialize Book Post Type
         add_action('init', function() use ($container) {
             $postTypeService = $container->get('book.post_type');
@@ -62,5 +61,11 @@ class BookServiceProvider extends AbstractServiceProvider implements BootablePlu
             $metaBoxService->boot();
         });
 
+
+        add_action('save_post_book', function($postId) use ($container) {
+            $saveMetaboxService = $container->get('book.meta_box');
+            $saveMetaboxService->setContainer($container);
+            $saveMetaboxService->save($postId);
+        });
     }
 }

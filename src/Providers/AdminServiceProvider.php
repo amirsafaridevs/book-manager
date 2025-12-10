@@ -3,15 +3,18 @@ namespace BookManager\Providers;
 
 use Rabbit\Contracts\BootablePluginProviderInterface;
 use League\Container\ServiceProvider\AbstractServiceProvider;
-
+use BookManager\Services\SaveMetabox;
 /**
  * Admin Service Provider
  */
 class AdminServiceProvider extends AbstractServiceProvider implements BootablePluginProviderInterface
 {
     protected $provides = [];
-    public function register()
+    public function register( )
     {
+
+        $container = $this->getContainer();
+
         
     }
     public function boot()
@@ -20,6 +23,6 @@ class AdminServiceProvider extends AbstractServiceProvider implements BootablePl
     }
     public function bootPlugin()
     {
-        // View macro is registered in App::loadPluginTextDomain()
+        
     }
 }

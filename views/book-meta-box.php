@@ -1,10 +1,9 @@
 <?php
 
+use Rabbit\Nonces\NonceFactory;
 
-// Add nonce for security
-wp_nonce_field('book_isbn_meta_box', 'book_isbn_meta_box_nonce');
-
-
+// Add nonce for security using Rabbit framework
+echo NonceFactory::fields('book_isbn_meta_box');
 
 // Display the form
 ?>
