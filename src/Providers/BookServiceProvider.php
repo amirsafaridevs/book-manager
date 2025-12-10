@@ -63,9 +63,9 @@ class BookServiceProvider extends AbstractServiceProvider implements BootablePlu
 
 
         add_action('save_post_book', function($postId) use ($container) {
-            $saveMetaboxService = $container->get('book.meta_box');
-            $saveMetaboxService->setContainer($container);
-            $saveMetaboxService->save($postId);
+            $metaBoxService = $container->get('book.meta_box');
+            $metaBoxService->setContainer($container);
+            $metaBoxService->save($postId);
         });
     }
 }
