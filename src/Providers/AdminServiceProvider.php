@@ -13,12 +13,11 @@ class AdminServiceProvider extends AbstractServiceProvider implements BootablePl
     protected $provides = ['Admin.bookInfoPage'];
     public function register( )
     {
-
         $container = $this->getContainer();
 
-        // Register BookInfo Model
-        $container->share(BookInfo::class);
-        $container->share('Admin.bookInfoPage', BookInfoPage::class)->addArgument(BookInfo::class);
+        // Register BookInfoPage with Dependency Injection
+        $container->share('Admin.bookInfoPage', BookInfoPage::class)
+            ->addArgument(BookInfo::class);
     }
     public function boot()
     {

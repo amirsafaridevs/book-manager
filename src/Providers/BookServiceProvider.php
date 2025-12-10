@@ -22,21 +22,20 @@ class BookServiceProvider extends AbstractServiceProvider implements BootablePlu
     
     public function register()
     {
-         $container = $this->getContainer();
+        $container = $this->getContainer();
 
-        // Register Book Post Type Service
+        // Register BookInfo Model as Singleton
+        $container->share(BookInfo::class);
+        
+        // Register Book Post Type Service as Singleton
         $container->share('book.post_type', BookPostTypeService::class);
         
-        // Register Book Taxonomy Service
+        // Register Book Taxonomy Service as Singleton
         $container->share('book.taxonomy', BookTaxonomyService::class);
-
-
-        // Register BookInfo Model
-        $container->share(BookInfo::class);
-        // Register Book Meta Box Service with dependency injection
+        
+        // Register Book Meta Box Service with Dependency Injection
         $container->share('book.meta_box', BookMetaBoxService::class)
-        ->addArgument(BookInfo::class);
-
+            ->addArgument(BookInfo::class);
     }
     public function boot()
     {

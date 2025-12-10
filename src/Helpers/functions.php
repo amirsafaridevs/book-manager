@@ -4,9 +4,14 @@ use BookManager\App\App;
 use Rabbit\Redirects\AdminNotice;
 
 
+/**
+ * Initialize the Book Manager application
+ * Uses Singleton Pattern to ensure only one instance exists
+ * 
+ * @return App
+ */
 function boman_init(){
-
-     return new App();
+     return App::get();
 }
 
 function boman_handle_try_catch_error($exception){
